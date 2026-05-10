@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Icehorse Competition Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #f43f5e;
+            --primary-hover: #e11d48;
+            --bg-color: #0f172a;
+            --surface: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; background-image: radial-gradient(circle at top right, #1e1b4b, #0f172a); }
+        
+        .glass-panel {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            transition: all 0.3s ease;
+        }
+
+        h2 { font-size: 2rem; font-weight: 800; margin-bottom: 2rem; text-align: center; letter-spacing: -0.5px; }
+        
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group label { display: block; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 600; }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-group input[type="checkbox"] {
+            width: auto;
+            padding: 0;
+        }
+        .input-group input:focus, .input-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2); }
+        
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 14px 0 rgba(244, 63, 94, 0.39); }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: var(--text-main); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; width: auto; }
+
+        .dashboard { max-width: 1200px; padding: 0; display: flex; overflow: hidden; min-height: 80vh; }
+        .sidebar { width: 250px; background: rgba(0,0,0,0.2); padding: 2rem; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; }
+        .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
+
+        .tab-btn { text-align: left; margin-bottom: 0.5rem; padding: 1rem; border-radius: 8px; font-weight: 400; display: flex; align-items: center; gap: 10px; }
+        .tab-btn.active { background: var(--primary); box-shadow: 0 4px 14px 0 rgba(244, 63, 94, 0.39); font-weight: 600; }
+
+        .content-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 2rem; }
+        
+        .list-item { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+        .badge { background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-right: 0.3rem; }
+
+        @media (max-width: 768px) {
+            .dashboard { flex-direction: column; height: 100vh; border-radius: 0; border: none; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--glass-border); padding: 1rem; }
+            .main-content { padding: 1rem; }
+            #tabs { flex-direction: row; overflow-x: auto; padding-bottom: 0.5rem; }
+            .tab-btn { white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN -->
+    <main id="login-section" class="glass-panel">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-horse-head" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+            <h2>Klub Login</h2>
+        </div>
+        <form id="login-form">
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="login-email" required>
+            </div>
+            <div class="input-group">
+                <label>Adgangskode</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="login-remember" style="width: auto;">
+                <label for="login-remember" style="font-size: 0.875rem; color: var(--text-secondary);">Husk mig (30 dage)</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Log ind</button>
+            <button type="button" class="btn btn-secondary" style="margin-top: 1rem;" onclick="document.getElementById('register-section').style.display='block'; document.getElementById('login-section').style.display='none';">Opret ny klub</button>
+            <p id="login-error" style="color: #ef4444; margin-top: 1rem; text-align: center; font-size: 0.875rem; display: none;">Forkert email eller adgangskode.</p>
+        </form>
+    </main>
+
+    <!-- REGISTER -->
+    <main id="register-section" class="glass-panel" style="display: none;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-horse-head" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+            <h2>Opret Klub</h2>
+        </div>
+        <form id="register-form">
+            <div class="input-group">
+                <label>Klubnavn</label>
+                <input type="text" id="reg-name" required>
+            </div>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="reg-email" required>
+            </div>
+            <div class="input-group">
+                <label>Adgangskode</label>
+                <input type="password" id="reg-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Opret Klub</button>
+            <button type="button" class="btn btn-secondary" style="margin-top: 1rem;" onclick="document.getElementById('register-section').style.display='none'; document.getElementById('login-section').style.display='block';">Tilbage til login</button>
+            <p id="reg-error" style="color: #ef4444; margin-top: 1rem; text-align: center; font-size: 0.875rem; display: none;">Fejl ved oprettelse (måske findes emailen allerede).</p>
+        </form>
+    </main>
+
+    <!-- CLUB SELECTION -->
+    <main id="club-selection-section" class="glass-panel" style="display: none; max-width: 600px; margin: 2rem auto;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-users" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+            <h2>Vælg Klub</h2>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Dit login er tilknyttet flere klubber. Vælg hvilken du vil arbejde med.</p>
+        </div>
+        <div id="club-selection-list" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+            <!-- Renderes via JS -->
+        </div>
+        <div style="text-align: center; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('create-new-club-modal').style.display='flex'">+ Opret en anden klub</button>
+            <button type="button" class="btn btn-danger" style="margin-left: 1rem;" onclick="logout()">Log ud</button>
+        </div>
+    </main>
+
+    <!-- DASHBOARD -->
+    <main id="dashboard" class="dashboard glass-panel" style="display: none;">
+        <nav class="sidebar">
+            <h2 style="margin-bottom: 2rem; color: var(--primary); text-align: left;">Icehorse</h2>
+            <div id="tabs" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <button class="btn btn-secondary tab-btn active" data-tab="competitions"><i class="fas fa-trophy"></i> Stævner</button>
+                <button class="btn btn-secondary tab-btn" data-tab="directory"><i class="fas fa-address-book"></i> Personkartotek</button>
+                <button class="btn btn-secondary tab-btn" data-tab="posts"><i class="fas fa-flag"></i> Poster / Klasser</button>
+                <button class="btn btn-secondary tab-btn" data-tab="profile"><i class="fas fa-user-cog"></i> Profil</button>
+            </div>
+            
+            <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                <button class="btn btn-secondary btn-sm" onclick="showClubSelection()"><i class="fas fa-exchange-alt"></i> Skift / Opret Klub</button>
+                <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Log ud</button>
+            </div>
+        </nav>
+
+        <div class="main-content">
+            
+            <!-- STÆVNER -->
+            <div class="tab-content active" id="competitions-tab">
+                <div class="content-header">
+                    <h3>Stævner</h3>
+                    <button class="btn btn-primary btn-sm" onclick="document.getElementById('new-comp-form').style.display='block'"><i class="fas fa-plus"></i> Nyt Stævne</button>
+                </div>
+
+                <form id="new-comp-form" style="display: none; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--glass-border);">
+                    <div class="input-group">
+                        <label>Navn</label>
+                        <input type="text" id="comp-name" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Dato</label>
+                        <input type="date" id="comp-date" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="input-group" style="flex: 1;">
+                            <label>Start (Tid)</label>
+                            <input type="time" id="comp-start-time">
+                        </div>
+                        <div class="input-group" style="flex: 1;">
+                            <label>Ca. Slut (Tid)</label>
+                            <input type="time" id="comp-end-time">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Lokation</label>
+                        <input type="text" id="comp-location" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Opret</button>
+                </form>
+
+                <div id="competitions-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- JS -->
+                </div>
+
+                <!-- STÆVNE DETALJER -->
+                <div id="competition-details" style="display: none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--glass-border);">
+                    <div style="background: rgba(var(--primary-rgb), 0.1); border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 4px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;"><i class="fas fa-trophy"></i> Valgt Stævne</p>
+                            <h2 id="detail-comp-name" style="color: var(--primary); margin: 0.5rem 0 0 0; font-size: 1.8rem;"></h2>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-secondary btn-sm" onclick="deleteCompetition()" style="background: rgba(244, 63, 94, 0.2); color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);"><i class="fas fa-trash"></i> Slet Stævne</button>
+                            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('competition-details').style.display='none'; document.getElementById('competitions-list').style.display='flex'; document.getElementById('new-comp-form').style.display='none';"><i class="fas fa-times"></i> Luk Stævne</button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                        <button class="btn btn-secondary detail-tab-btn active" onclick="showCompTab('riders')"><i class="fas fa-horse"></i> Tilknyttede Ryttere</button>
+                        <button class="btn btn-secondary detail-tab-btn" onclick="showCompTab('judges')"><i class="fas fa-gavel"></i> Tilknyttede Dommere & Poster</button>
+                    </div>
+
+                    <!-- COMP RIDERS -->
+                    <div id="comp-riders-section">
+                        <form id="add-comp-rider-form" style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--glass-border);">
+                            <h4 style="margin-bottom: 1rem;">Tilknyt rytter til stævnet</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">Vælg en rytter fra dit personkartotek.</p>
+                            <div class="input-group">
+                                <label>Rytter</label>
+                                <select id="comp-rider-select" required onchange="updateHorseSelect()">
+                                    <option value="">-- Vælg rytter --</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Hest</label>
+                                <select id="comp-horse-select" required>
+                                    <option value="">-- Vælg rytter først --</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Startnummer (Valgfrit)</label>
+                                <input type="number" id="comp-start-number">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Tilknyt Rytter</button>
+                        </form>
+                        <div id="comp-riders-list"></div>
+                    </div>
+
+                    <!-- COMP JUDGES & POSTS -->
+                    <div id="comp-judges-section" style="display: none;">
+                        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 300px;">
+                                <form id="add-comp-judge-form" style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--glass-border);">
+                                    <h4 style="margin-bottom: 1rem;">Tilknyt Dommer</h4>
+                                    <div class="input-group">
+                                        <label>Dommer</label>
+                                        <select id="comp-judge-select" required>
+                                            <option value="">-- Vælg dommer --</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Rolle</label>
+                                        <input type="text" id="comp-judge-role" placeholder="F.eks. Hoveddommer" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Dømmer på poster (valgfrit)</label>
+                                        <div id="comp-judge-posts-checkboxes" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 4px;">
+                                            <!-- Bliver fyldt af JS -->
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Tilknyt</button>
+                                </form>
+                                <div id="comp-judges-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DIRECTORY TAB -->
+            <div class="tab-content" id="directory-tab" style="display: none;">
+                <div class="content-header">
+                    <h3>Det Globale Personkartotek</h3>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">Her opretter du dine "byggeklodser" – Ryttere, heste og dommere. Derefter kan du tilknytte dem til stævner.</p>
+                
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                    <!-- RYTTERE -->
+                    <div style="flex: 1; min-width: 300px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                            <h4 style="color: var(--primary);"><i class="fas fa-horse"></i> Ryttere & Heste</h4>
+                            <button class="btn btn-primary btn-sm" onclick="openDirRiderModal()"><i class="fas fa-plus"></i> Opret Ny</button>
+                        </div>
+                        <div id="dir-riders-list"></div>
+                    </div>
+                    
+                    <!-- DOMMERE -->
+                    <div style="flex: 1; min-width: 300px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                            <h4 style="color: #10b981;"><i class="fas fa-gavel"></i> Dommere</h4>
+                            <button class="btn btn-primary btn-sm" style="background: #10b981;" onclick="openDirJudgeModal()"><i class="fas fa-plus"></i> Opret Ny</button>
+                        </div>
+                        <div id="dir-judges-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POSTER TAB -->
+            <div class="tab-content" id="posts-tab" style="display: none;">
+                <div class="content-header">
+                    <h3>Poster / Klasser</h3>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">Opret klubbens faste poster (f.eks. "Tølt T1", "Pasløb"). Disse kan genbruges ved alle stævner.</p>
+                
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <form id="club-post-form" style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--glass-border);">
+                            <h4 style="margin-bottom: 1rem;">Opret Ny Post / Klasse</h4>
+                            <div class="input-group">
+                                <label>Navn (F.eks. T.1)</label>
+                                <input type="text" id="club-post-name" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Lokation (Valgfri)</label>
+                                <input type="text" id="club-post-location" placeholder="F.eks. Ovalbane 1">
+                            </div>
+                            <div class="input-group">
+                                <label>Beskrivelse (Valgfri)</label>
+                                <textarea id="club-post-description" rows="3" placeholder="Kort beskrivelse..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Opret Post</button>
+                        </form>
+                    </div>
+                    <div style="flex: 1; min-width: 300px;">
+                        <div id="club-posts-list" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFIL -->
+            <div class="tab-content" id="profile-tab" style="display: none;">
+                <div class="content-header">
+                    <h3>Klubprofil</h3>
+                </div>
+                <form id="profile-form" style="max-width: 500px;">
+                    <div class="input-group">
+                        <label>Klubbens Navn</label>
+                        <input type="text" id="prof-name">
+                    </div>
+                    <div class="input-group">
+                        <label>Kontaktperson</label>
+                        <input type="text" id="prof-contact-name">
+                    </div>
+                    <div class="input-group">
+                        <label>Telefon</label>
+                        <input type="text" id="prof-phone">
+                    </div>
+                    <div class="input-group">
+                        <label>Offentlig Email</label>
+                        <input type="email" id="prof-contact-email">
+                    </div>
+                    <div class="input-group">
+                        <label>Adresse</label>
+                        <input type="text" id="prof-address">
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="input-group" style="flex: 1;">
+                            <label>Postnr</label>
+                            <input type="text" id="prof-zip">
+                        </div>
+                        <div class="input-group" style="flex: 2;">
+                            <label>By</label>
+                            <input type="text" id="prof-city">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Gem Profil</button>
+                    <p id="prof-msg" style="color: #10b981; margin-top: 1rem; display: none;">Profil gemt!</p>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: RYTTER (Opret/Ret + Heste) -->
+    <div id="dir-rider-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="glass-panel" style="max-height: 90vh; overflow-y: auto;">
+            <h3 id="dir-rider-title" style="margin-bottom: 1.5rem; color: var(--primary);">Opret Rytter</h3>
+            
+            <form id="dir-rider-form">
+                <input type="hidden" id="dir-rider-id">
+                <div class="input-group">
+                    <label>Navn</label>
+                    <input type="text" id="dir-rider-name" required>
+                </div>
+                <div class="input-group">
+                    <label>Email (Påkrævet til Magic Link)</label>
+                    <input type="email" id="dir-rider-email" required>
+                </div>
+                <div class="input-group">
+                    <label>Telefon</label>
+                    <input type="text" id="dir-rider-phone">
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Gem Stamdata</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('dir-rider-modal').style.display='none'">Luk</button>
+                </div>
+            </form>
+
+            <div id="dir-rider-horses-section" style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem; display: none;">
+                <h4 style="margin-bottom: 1rem;"><i class="fas fa-horse-head"></i> Rytterens Heste</h4>
+                <div id="dir-rider-horses-list" style="margin-bottom: 1rem;"></div>
+                
+                <form id="dir-add-horse-form" style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="dir-new-horse-name" placeholder="Hestens navn" required style="flex: 1; padding: 0.8rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">
+                    <button type="submit" class="btn btn-primary" style="width: auto; padding: 0 1.5rem;"><i class="fas fa-plus"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DOMMER (Opret/Ret) -->
+    <div id="dir-judge-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="glass-panel">
+            <h3 id="dir-judge-title" style="margin-bottom: 1.5rem; color: #10b981;">Opret Dommer</h3>
+            <form id="dir-judge-form">
+                <input type="hidden" id="dir-judge-id">
+                <div class="input-group">
+                    <label>Navn</label>
+                    <input type="text" id="dir-judge-name" required>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="dir-judge-email">
+                </div>
+                <div class="input-group">
+                    <label>Telefon</label>
+                    <input type="text" id="dir-judge-phone">
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; background: #10b981;">Gem Dommer</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('dir-judge-modal').style.display='none'">Luk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: OPRET NY KLUB (Logged ind) -->
+    <div id="create-new-club-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="glass-panel" style="max-width: 400px; width: 100%;">
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Opret ny klub</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">Klubben bliver automatisk tilknyttet dit nuværende login.</p>
+            <form id="create-new-club-form">
+                <div class="input-group">
+                    <label>Klubnavn</label>
+                    <input type="text" id="new-club-name" required>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Opret</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('create-new-club-modal').style.display='none'">Annuller</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+</body>
+</html>

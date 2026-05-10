@@ -1,0 +1,190 @@
+from pydantic import BaseModel, EmailStr
+from typing import List, Optional
+from datetime import datetime
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    club_name: str
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    class Config:
+        from_attributes = True
+
+class ClubBase(BaseModel):
+    name: str
+
+class ClubUpdate(BaseModel):
+    name: Optional[str] = None
+    contact_name: Optional[str] = None
+    phone: Optional[str] = None
+    contact_email: Optional[EmailStr] = None
+    address: Optional[str] = None
+    zip_code: Optional[str] = None
+    city: Optional[str] = None
+    logo_url: Optional[str] = None
+    facebook_url: Optional[str] = None
+    instagram_url: Optional[str] = None
+    website_url: Optional[str] = None
+
+class ClubCreate(ClubBase):
+    pass
+
+class ClubOut(ClubBase):
+    id: int
+    user_id: int
+    contact_name: Optional[str] = None
+    phone: Optional[str] = None
+    contact_email: Optional[EmailStr] = None
+    address: Optional[str] = None
+    zip_code: Optional[str] = None
+    city: Optional[str] = None
+    logo_url: Optional[str] = None
+    facebook_url: Optional[str] = None
+    instagram_url: Optional[str] = None
+    website_url: Optional[str] = None
+    class Config:
+        from_attributes = True
+
+class DiscountCodeBase(BaseModel):
+    code: str
+    discount_amount: float
+    is_active: bool = True
+
+class DiscountCodeCreate(DiscountCodeBase):
+    pass
+
+class DiscountCodeOut(DiscountCodeBase):
+    id: int
+    class Config:
+        from_attributes = True
+
+class CompetitionBase(BaseModel):
+    name: str
+    date: datetime
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    location: str
+
+class CompetitionCreate(CompetitionBase):
+    pass
+
+class CompetitionOut(CompetitionBase):
+    id: int
+    club_id: int
+    is_active: bool
+    active_until: Optional[datetime] = None
+    price_paid: Optional[float] = None
+    class Config:
+        from_attributes = True
+
+class ClubPostBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    location: Optional[str] = None
+
+class ClubPostCreate(ClubPostBase):
+    pass
+
+class ClubPostOut(ClubPostBase):
+    id: int
+    club_id: int
+    class Config:
+        from_attributes = True
+
+class HorseBase(BaseModel):
+    name: str
+
+class HorseCreate(HorseBase):
+    pass
+
+class HorseOut(HorseBase):
+    id: int
+    club_rider_id: int
+    class Config:
+        from_attributes = True
+
+class ClubRiderBase(BaseModel):
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+
+class ClubRiderCreate(ClubRiderBase):
+    pass
+
+class ClubRiderOut(ClubRiderBase):
+    id: int
+    club_id: int
+    horses: List[HorseOut] = []
+    class Config:
+        from_attributes = True
+
+class ClubJudgeBase(BaseModel):
+    name: str
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+
+class ClubJudgeCreate(ClubJudgeBase):
+    pass
+
+class ClubJudgeOut(ClubJudgeBase):
+    id: int
+    club_id: int
+    class Config:
+        from_attributes = True
+
+class CompetitionRiderBase(BaseModel):
+    start_number: Optional[int] = None
+    horse_id: int
+    club_rider_id: int
+
+class CompetitionRiderCreate(CompetitionRiderBase):
+    pass
+
+class CompetitionRiderOut(CompetitionRiderBase):
+    id: int
+    competition_id: int
+    magic_link_uuid: str
+    club_rider: ClubRiderOut
+    horse: HorseOut
+    class Config:
+        from_attributes = True
+
+class CompetitionJudgeBase(BaseModel):
+    role: str
+    club_judge_id: int
+
+class CompetitionJudgeCreate(CompetitionJudgeBase):
+    post_ids: List[int] = []
+
+class CompetitionJudgeOut(CompetitionJudgeBase):
+    id: int
+    competition_id: int
+    magic_link_uuid: str
+    club_judge: ClubJudgeOut
+    club_posts: List[ClubPostOut] = []
+    class Config:
+        from_attributes = True
+
+class DirectoryCompetitionOut(BaseModel):
+    id: int
+    name: str
+
+class DirectoryRiderOut(ClubRiderOut):
+    competitions: List[DirectoryCompetitionOut] = []
+
+class DirectoryJudgeOut(ClubJudgeOut):
+    competitions: List[DirectoryCompetitionOut] = []
+
+class DirectoryOut(BaseModel):
+    riders: List[DirectoryRiderOut]
+    judges: List[DirectoryJudgeOut]
