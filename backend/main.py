@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import database, models
-from routers import auth, clubs, admin
+from routers import auth, clubs, admin, scores
 
 # Opret database tabeller
 models.Base.metadata.create_all(bind=database.engine)
@@ -20,6 +20,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(clubs.router)
 app.include_router(admin.router)
+app.include_router(scores.router)
 
 @app.get("/")
 def read_root():

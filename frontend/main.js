@@ -1,6 +1,10 @@
 window.activeClubId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Undgå at main.js blander sig, hvis vi er på en dommer- eller leaderboard-side
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('magic') || urlParams.get('leaderboard')) return;
+
     const loginSection = document.getElementById('login-section');
     const dashboardSection = document.getElementById('dashboard');
     const clubSelectionSection = document.getElementById('club-selection-section');
@@ -26,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('username', email);
             formData.append('password', password);
 
-            const response = await fetch('http://192.168.1.66:8082/auth/login', {
+            const response = await fetch('http://localhost:8000/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: formData
@@ -59,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('reg-password').value;
 
             try {
-                const response = await fetch('http://192.168.1.66:8082/auth/register', {
+                const response = await fetch('http://localhost:8000/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password, club_name })
@@ -87,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!token) return;
 
         try {
-            const response = await fetch('http://192.168.1.66:8082/clubs/me', {
+            const response = await fetch('http://localhost:8000/clubs/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if(response.ok) {
@@ -141,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('new-club-name').value;
         const token = getToken();
         try {
-            const response = await fetch('http://192.168.1.66:8082/clubs/', {
+            const response = await fetch('http://localhost:8000/clubs/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ name })
@@ -475,6 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- STÆVNER LOGIK ---
     let currentCompId = null;
+    window.currentCompId = null;
 
     async function fetchCompetitions() {
         if(!window.activeClubId) return;
@@ -533,6 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // STÆVNE DETALJER
     window.openCompetition = function(id, name) {
         currentCompId = id;
+        window.currentCompId = id;
         document.getElementById('competitions-list').style.display = 'none';
         document.getElementById('new-comp-form').style.display = 'none';
         document.getElementById('competition-details').style.display = 'block';
@@ -559,6 +565,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetchCompetitions();
             } else {
                 alert('Kunne ikke slette stævnet. Prøv igen.');
+            }
+        } catch(err) {
+            console.error(err);
+            alert('Der opstod en fejl.');
+        }
+    };
+
+    window.sendJudgeEmail = async function(compJudgeId) {
+        if(!window.activeClubId || !window.currentCompId) return;
+        if(!confirm('Vil du sende en email med login-link til denne dommer?')) return;
+        
+        try {
+            const response = await fetch(`http://localhost:8000/clubs/${window.activeClubId}/competitions/${window.currentCompId}/judges/${compJudgeId}/send-email`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.message);
+            } else {
+                alert(data.detail || 'Kunne ikke sende email');
             }
         } catch(err) {
             console.error(err);
@@ -740,13 +769,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         : '<span style="font-size: 0.8rem; color: var(--text-secondary);">Ingen poster tilknyttet</span>';
                         
                     list.innerHTML += `
-                        <div class="list-item" style="border-left: 4px solid #10b981;">
-                            <div>
-                                <strong>${j.club_judge.name}</strong>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.3rem;">Rolle: ${j.role}</div>
-                                <div style="margin-top: 0.5rem;">${postBadges}</div>
+                        <div class="list-item" style="border-left: 4px solid #10b981; flex-direction: column; align-items: stretch;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div>
+                                    <strong>${j.club_judge.name}</strong>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.3rem;">Rolle: ${j.role}</div>
+                                    <div style="margin-top: 0.5rem;">${postBadges}</div>
+                                </div>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCompJudge(${j.id})"><i class="fas fa-unlink"></i> Fjern</button>
                             </div>
-                            <button class="btn btn-danger btn-sm" onclick="deleteCompJudge(${j.id})"><i class="fas fa-unlink"></i> Fjern</button>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(window.location.origin + '?magic=${j.magic_link_uuid}'); alert('Link kopieret!');"><i class="fas fa-copy"></i> Kopiér Link</button>
+                                <button class="btn btn-secondary btn-sm" onclick="sendJudgeEmail(${j.id})"><i class="fas fa-envelope"></i> Send Email</button>
+                                <button class="btn btn-primary btn-sm" style="background: #10b981;" onclick="window.open('?magic=${j.magic_link_uuid}', '_blank')"><i class="fas fa-external-link-alt"></i> Åbn Dommer Panel</button>
+                            </div>
                         </div>
                     `;
                 });

@@ -188,3 +188,25 @@ class DirectoryJudgeOut(ClubJudgeOut):
 class DirectoryOut(BaseModel):
     riders: List[DirectoryRiderOut]
     judges: List[DirectoryJudgeOut]
+
+class ScoreBase(BaseModel):
+    points: float
+    comment: Optional[str] = None
+
+class ScoreCreate(ScoreBase):
+    club_post_id: int
+    competition_rider_id: int
+
+class ScoreUpdate(ScoreBase):
+    pass
+
+class ScoreOut(ScoreBase):
+    id: int
+    club_post_id: int
+    competition_judge_id: int
+    competition_rider_id: int
+    timestamp: datetime
+    
+    class Config:
+        from_attributes = True
+

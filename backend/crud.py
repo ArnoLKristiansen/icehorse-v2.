@@ -252,3 +252,34 @@ def get_club_directory(db: Session, club_id: int):
         "riders": dir_riders,
         "judges": dir_judges
     }
+
+# --- SCORES ---
+def create_score(db: Session, score: schemas.ScoreCreate, judge_id: int):
+    db_score = models.Score(
+        **score.model_dump(),
+        competition_judge_id=judge_id
+    )
+    db.add(db_score)
+    db.commit()
+    db.refresh(db_score)
+    return db_score
+
+def update_score(db: Session, score_id: int, score_update: schemas.ScoreUpdate, judge_id: int):
+    db_score = db.query(models.Score).filter(models.Score.id == score_id, models.Score.competition_judge_id == judge_id).first()
+    if db_score:
+        db_score.points = score_update.points
+        if score_update.comment is not None:
+            db_score.comment = score_update.comment
+        db.commit()
+        db.refresh(db_score)
+    return db_score
+
+def get_scores_for_competition(db: Session, competition_id: int):
+    # Retrieve all scores that belong to a specific competition
+    # We join via competition_rider
+    return db.query(models.Score).join(
+        models.CompetitionRider, models.Score.competition_rider_id == models.CompetitionRider.id
+    ).filter(
+        models.CompetitionRider.competition_id == competition_id
+    ).all()
+

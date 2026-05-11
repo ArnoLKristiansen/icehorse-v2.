@@ -267,6 +267,51 @@ def remove_judge_from_competition(
         return {"status": "success"}
     raise HTTPException(status_code=404, detail="Competition Judge not found")
 
+@router.post("/{club_id}/competitions/{comp_id}/judges/{comp_judge_id}/send-email")
+def send_magic_link_email(
+    club_id: int,
+    comp_id: int,
+    comp_judge_id: int,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    get_competition_if_owner(comp_id, club_id, db, current_user)
+    
+    comp_judge = db.query(models.CompetitionJudge).filter(models.CompetitionJudge.id == comp_judge_id, models.CompetitionJudge.competition_id == comp_id).first()
+    if not comp_judge:
+        raise HTTPException(status_code=404, detail="Competition Judge not found")
+        
+    club_judge = comp_judge.club_judge
+    if not club_judge.email:
+        raise HTTPException(status_code=400, detail="Denne dommer har ingen registreret e-mailadresse.")
+        
+    comp = db.query(models.Competition).filter(models.Competition.id == comp_id).first()
+    
+    # Her simuleres email afsendelsen indtil SMTP er sat op.
+    magic_link = f"http://localhost:5173/?magic={comp_judge.magic_link_uuid}"
+    email_body = f"""
+    Til: {club_judge.name} <{club_judge.email}>
+    Emne: Dit dommer-link til {comp.name}
+    
+    Kære {club_judge.name},
+    
+    Du er blevet oprettet som dommer til {comp.name}.
+    Klik på nedenstående link på din telefon for at åbne dommerpanelet og begynde at dømme:
+    
+    {magic_link}
+    
+    Dette link er personligt og kræver ikke kodeord.
+    
+    Venlig hilsen,
+    Icehorse Teamet
+    """
+    
+    print("----- EMAIL SENDT MOCK -----")
+    print(email_body)
+    print("----------------------------")
+    
+    return {"status": "success", "message": f"Email sendt til {club_judge.email}"}
+
 # --- CLUB POSTS ---
 @router.post("/{club_id}/club_posts", response_model=schemas.ClubPostOut)
 def create_post_for_club(
