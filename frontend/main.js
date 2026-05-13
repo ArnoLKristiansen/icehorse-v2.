@@ -1,6 +1,24 @@
 window.activeClubId = null;
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+window.toggleSidebar = function() {
+    const sidebar = document.getElementById('sidebar-nav');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (sidebar && overlay) {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+    }
+};
+
+window.closeSidebar = function() {
+    const sidebar = document.getElementById('sidebar-nav');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (sidebar && overlay) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Undgå at main.js blander sig, hvis vi er på en dommer- eller leaderboard-side
     const urlParams = new URLSearchParams(window.location.search);
@@ -270,6 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById(tabId).style.display = 'block';
             
             if (tabId === 'directory-tab') fetchGlobalDirectory();
+            window.closeSidebar();
         });
     });
 
