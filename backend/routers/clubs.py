@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 import crud, models, schemas, database
 from auth import get_current_user
+import os
 
 router = APIRouter(prefix="/clubs", tags=["clubs"])
 
@@ -290,7 +291,8 @@ def send_magic_link_email(
     # Afsend email via Simply.com (eller anden SMTP)
     try:
         from email_service import send_judge_magic_link_email
-        magic_link = f"http://localhost:5173/?magic={comp_judge.magic_link_uuid}"
+        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        magic_link = f"{frontend_url}/?magic={comp_judge.magic_link_uuid}"
         send_judge_magic_link_email(
             to_email=club_judge.email,
             judge_name=club_judge.name,
