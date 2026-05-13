@@ -1,4 +1,5 @@
 window.activeClubId = null;
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Undgå at main.js blander sig, hvis vi er på en dommer- eller leaderboard-side
@@ -30,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('username', email);
             formData.append('password', password);
 
-            const response = await fetch('http://localhost:8000/auth/login', {
+            const response = await fetch(`${API_BASE}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: formData
@@ -63,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('reg-password').value;
 
             try {
-                const response = await fetch('http://localhost:8000/auth/register', {
+                const response = await fetch(`${API_BASE}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password, club_name })
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!token) return;
 
         try {
-            const response = await fetch('http://localhost:8000/clubs/me', {
+            const response = await fetch(`${API_BASE}/clubs/me`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if(response.ok) {
@@ -145,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('new-club-name').value;
         const token = getToken();
         try {
-            const response = await fetch('http://localhost:8000/clubs/', {
+            const response = await fetch(`${API_BASE}/clubs/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ name })
@@ -577,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!confirm('Vil du sende en email med login-link til denne dommer?')) return;
         
         try {
-            const response = await fetch(`http://localhost:8000/clubs/${window.activeClubId}/competitions/${window.currentCompId}/judges/${compJudgeId}/send-email`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions/${window.currentCompId}/judges/${compJudgeId}/send-email`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`

@@ -1,6 +1,6 @@
 // scores.js - Håndterer Magic Link Dommer-visning og Public Leaderboard
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 let magicUuid = null;
 let magicJudge = null;
 let activePostId = null;
