@@ -64,3 +64,52 @@ Icehorse Teamet
     except Exception as e:
         print(f"SMTP FEJL: {e}")
         raise Exception(f"Kunne ikke sende mailen. Fejl fra udbyder: {str(e)}")
+
+def send_password_reset_email(to_email: str, reset_link: str):
+    if not SMTP_USERNAME or not SMTP_PASSWORD or not SMTP_FROM_EMAIL:
+        raise Exception("Mail-opsætningen mangler på serveren.")
+
+    msg = EmailMessage()
+    msg['Subject'] = 'Nulstil din adgangskode til Icehorse'
+    msg['From'] = f"Icehorse <{SMTP_FROM_EMAIL}>"
+    msg['To'] = to_email
+
+    text_content = f"""
+Du har anmodet om at nulstille din adgangskode.
+Klik på linket herunder for at vælge en ny adgangskode:
+
+{reset_link}
+
+Hvis du ikke har anmodet om dette, kan du blot ignorere denne email.
+Linket udløber om 1 time.
+"""
+
+    html_content = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #3b82f6;">Nulstil din adgangskode</h2>
+        <p>Vi har modtaget en anmodning om at nulstille adgangskoden til din Icehorse konto.</p>
+        <p>Klik på knappen nedenfor for at vælge en ny adgangskode:</p>
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{reset_link}" style="background-color: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Nulstil adgangskode</a>
+        </div>
+        <p style="font-size: 12px; color: #666;">Virker knappen ikke? Kopiér dette link ind i din browser:<br>{reset_link}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #999;">Hvis du ikke har anmodet om dette, kan du blot ignorere denne email. Linket udløber om 1 time.</p>
+      </body>
+    </html>
+    """
+
+    msg.set_content(text_content)
+    msg.add_alternative(html_content, subtype='html')
+
+    try:
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"SMTP FEJL: {e}")
+        raise Exception(f"Kunne ikke sende mailen: {str(e)}")

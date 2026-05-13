@@ -6,6 +6,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('magic') || urlParams.get('leaderboard')) return;
 
+    if (urlParams.get('reset_token')) {
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('register-section').style.display = 'none';
+        document.getElementById('reset-password-section').style.display = 'block';
+        document.getElementById('reset-token').value = urlParams.get('reset_token');
+        
+        document.getElementById('reset-password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('reset-btn');
+            const msg = document.getElementById('reset-msg');
+            btn.disabled = true;
+            btn.innerText = "Gemmer...";
+            try {
+                const response = await fetch(`${API_BASE}/auth/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: document.getElementById('reset-token').value,
+                        new_password: document.getElementById('reset-new-password').value
+                    })
+                });
+                const data = await response.json();
+                if(response.ok) {
+                    msg.style.color = "#10b981";
+                    msg.innerText = data.message;
+                    msg.style.display = 'block';
+                    setTimeout(() => { window.location.href = '/'; }, 3000);
+                } else {
+                    msg.style.color = "#ef4444";
+                    msg.innerText = data.detail || "Fejl.";
+                    msg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerText = "Gem adgangskode";
+                }
+            } catch (err) {
+                msg.style.color = "#ef4444";
+                msg.innerText = "Netværksfejl.";
+                msg.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = "Gem adgangskode";
+            }
+        });
+        return;
+    }
+
     const loginSection = document.getElementById('login-section');
     const dashboardSection = document.getElementById('dashboard');
     const clubSelectionSection = document.getElementById('club-selection-section');
@@ -18,6 +63,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (getToken()) {
         checkUserClubs();
+    }
+
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+            const btn = document.getElementById('forgot-btn');
+            const msg = document.getElementById('forgot-msg');
+            
+            btn.disabled = true;
+            btn.innerText = "Sender...";
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                msg.style.color = "#10b981";
+                msg.innerText = data.message || "Email sendt, hvis den findes i vores system.";
+                msg.style.display = 'block';
+            } catch (err) {
+                msg.style.color = "#ef4444";
+                msg.innerText = "Netværksfejl. Prøv igen.";
+                msg.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Send link";
+            }
+        });
     }
 
     loginForm.addEventListener('submit', async (e) => {

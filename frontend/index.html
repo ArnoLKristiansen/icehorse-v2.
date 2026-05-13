@@ -116,6 +116,9 @@
                 <label for="login-remember" style="font-size: 0.875rem; color: var(--text-secondary);">Husk mig (30 dage)</label>
             </div>
             <button type="submit" class="btn btn-primary">Log ind</button>
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="#" onclick="document.getElementById('forgot-password-section').style.display='block'; document.getElementById('login-section').style.display='none'; return false;" style="color: var(--primary); text-decoration: none; font-size: 0.875rem;">Glemt adgangskode?</a>
+            </div>
             <button type="button" class="btn btn-secondary" style="margin-top: 1rem;" onclick="document.getElementById('register-section').style.display='block'; document.getElementById('login-section').style.display='none';">Opret ny klub</button>
             <p id="login-error" style="color: #ef4444; margin-top: 1rem; text-align: center; font-size: 0.875rem; display: none;">Forkert email eller adgangskode.</p>
         </form>
@@ -143,6 +146,43 @@
             <button type="submit" class="btn btn-primary">Opret Klub</button>
             <button type="button" class="btn btn-secondary" style="margin-top: 1rem;" onclick="document.getElementById('register-section').style.display='none'; document.getElementById('login-section').style.display='block';">Tilbage til login</button>
             <p id="reg-error" style="color: #ef4444; margin-top: 1rem; text-align: center; font-size: 0.875rem; display: none;">Fejl ved oprettelse (måske findes emailen allerede).</p>
+        </form>
+    </main>
+
+    <!-- FORGOT PASSWORD -->
+    <main id="forgot-password-section" class="glass-panel" style="display: none;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-lock" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+            <h2>Nulstil Adgangskode</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Indtast din email, så sender vi et link til at nulstille din adgangskode.</p>
+        </div>
+        <form id="forgot-password-form">
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="forgot-email" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="forgot-btn">Send link</button>
+            <button type="button" class="btn btn-secondary" style="margin-top: 1rem;" onclick="document.getElementById('forgot-password-section').style.display='none'; document.getElementById('login-section').style.display='block';">Tilbage til login</button>
+            <p id="forgot-msg" style="color: #10b981; margin-top: 1rem; text-align: center; font-size: 0.875rem; display: none;"></p>
+        </form>
+    </main>
+
+    <!-- RESET PASSWORD -->
+    <main id="reset-password-section" class="glass-panel" style="display: none;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-key" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+            <h2>Ny Adgangskode</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Vælg en ny sikker adgangskode.</p>
+        </div>
+        <form id="reset-password-form">
+            <input type="hidden" id="reset-token">
+            <div class="input-group">
+                <label>Ny adgangskode</label>
+                <input type="password" id="reset-new-password" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary" id="reset-btn">Gem adgangskode</button>
+            <button type="button" class="btn btn-secondary" style="margin-top: 1rem;" onclick="window.location.href='/'">Gå til login</button>
+            <p id="reset-msg" style="color: #10b981; margin-top: 1rem; text-align: center; font-size: 0.875rem; display: none;"></p>
         </form>
     </main>
 
