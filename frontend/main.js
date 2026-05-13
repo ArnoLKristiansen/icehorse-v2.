@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = getToken();
         if (!token) return;
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 address: document.getElementById('prof-address').value
             };
             try {
-                const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}`, {
+                const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(payload)
@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = getToken();
         if (!token) return;
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/directory`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/directory`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -448,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const token = getToken();
-        const url = id ? `http://192.168.1.66:8082/clubs/${window.activeClubId}/club_riders/${id}` : `http://192.168.1.66:8082/clubs/${window.activeClubId}/club_riders`;
+        const url = id ? `${API_BASE}/clubs/${window.activeClubId}/club_riders/${id}` : `${API_BASE}/clubs/${window.activeClubId}/club_riders`;
         const method = id ? 'PUT' : 'POST';
 
         try {
@@ -464,7 +464,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 await fetchGlobalDirectory();
                 const updatedRider = globalDirectory.riders.find(r => r.id === savedRider.id);
                 if(updatedRider) renderRiderHorses(updatedRider);
-                if (!id) alert("Rytter oprettet! Du kan nu tilføje heste.");
+                if (!id) {
+                    if(!confirm("Rytter oprettet!\n\nVil du blive her og tilføje heste til rytteren med det samme?\n(Tryk 'Annuller' for at lukke og gå tilbage til oversigten)")) {
+                        document.getElementById('dir-rider-modal').style.display = 'none';
+                    }
+                }
             }
         } catch(err) { console.error(err); }
     });
@@ -496,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const token = getToken();
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/club_riders/${riderId}/horses`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/club_riders/${riderId}/horses`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ name: horseName })
@@ -515,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!confirm("Vil du slette denne hest?")) return;
         const token = getToken();
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/horses/${horseId}`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/horses/${horseId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -559,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const token = getToken();
-        const url = id ? `http://192.168.1.66:8082/clubs/${window.activeClubId}/club_judges/${id}` : `http://192.168.1.66:8082/clubs/${window.activeClubId}/club_judges`;
+        const url = id ? `${API_BASE}/clubs/${window.activeClubId}/club_judges/${id}` : `${API_BASE}/clubs/${window.activeClubId}/club_judges`;
         const method = id ? 'PUT' : 'POST';
 
         try {
@@ -583,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = getToken();
         if(!token) return;
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/competitions`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -619,7 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
             location: document.getElementById('comp-location').value
         };
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/competitions`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload)
@@ -652,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!confirm('Er du sikker på, at du vil slette dette stævne? Alt data (ryttere, dommere, scores) forbundet med stævnet vil gå tabt!')) return;
         
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/competitions/${currentCompId}`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions/${currentCompId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${getToken()}` }
             });
@@ -760,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const token = getToken();
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/competitions/${currentCompId}/riders`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions/${currentCompId}/riders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload)
@@ -778,7 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!window.activeClubId || !currentCompId) return;
         const token = getToken();
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/competitions/${currentCompId}/riders`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions/${currentCompId}/riders`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if(response.ok) {
@@ -806,7 +810,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!confirm("Fjern rytter fra stævnet?")) return;
         const token = getToken();
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/competitions/${currentCompId}/riders/${compRiderId}`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions/${currentCompId}/riders/${compRiderId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -836,7 +840,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const token = getToken();
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/competitions/${currentCompId}/judges`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions/${currentCompId}/judges`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload)
@@ -853,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!window.activeClubId || !currentCompId) return;
         const token = getToken();
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/competitions/${currentCompId}/judges`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions/${currentCompId}/judges`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if(response.ok) {
@@ -892,7 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!confirm("Fjern dommer fra stævnet?")) return;
         const token = getToken();
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/competitions/${currentCompId}/judges/${compJudgeId}`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/competitions/${currentCompId}/judges/${compJudgeId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -911,7 +915,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = getToken();
         if(!token) return;
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/club_posts`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/club_posts`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if(response.ok) {
@@ -951,7 +955,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: document.getElementById('club-post-description').value || null
         };
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/club_posts`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/club_posts`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload)
@@ -968,7 +972,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!confirm("Slet post/klasse?")) return;
         const token = getToken();
         try {
-            const response = await fetch(`http://192.168.1.66:8082/clubs/${window.activeClubId}/club_posts/${postId}`, {
+            const response = await fetch(`${API_BASE}/clubs/${window.activeClubId}/club_posts/${postId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
