@@ -287,30 +287,19 @@ def send_magic_link_email(
         
     comp = db.query(models.Competition).filter(models.Competition.id == comp_id).first()
     
-    # Her simuleres email afsendelsen indtil SMTP er sat op.
-    magic_link = f"http://localhost:5173/?magic={comp_judge.magic_link_uuid}"
-    email_body = f"""
-    Til: {club_judge.name} <{club_judge.email}>
-    Emne: Dit dommer-link til {comp.name}
-    
-    Kære {club_judge.name},
-    
-    Du er blevet oprettet som dommer til {comp.name}.
-    Klik på nedenstående link på din telefon for at åbne dommerpanelet og begynde at dømme:
-    
-    {magic_link}
-    
-    Dette link er personligt og kræver ikke kodeord.
-    
-    Venlig hilsen,
-    Icehorse Teamet
-    """
-    
-    print("----- EMAIL SENDT MOCK -----")
-    print(email_body)
-    print("----------------------------")
-    
-    return {"status": "success", "message": f"Email sendt til {club_judge.email}"}
+    # Afsend email via Simply.com (eller anden SMTP)
+    try:
+        from email_service import send_judge_magic_link_email
+        magic_link = f"http://localhost:5173/?magic={comp_judge.magic_link_uuid}"
+        send_judge_magic_link_email(
+            to_email=club_judge.email,
+            judge_name=club_judge.name,
+            comp_name=comp.name,
+            magic_link=magic_link
+        )
+        return {"status": "success", "message": f"Email sendt til {club_judge.email}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # --- CLUB POSTS ---
 @router.post("/{club_id}/club_posts", response_model=schemas.ClubPostOut)
