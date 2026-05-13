@@ -85,6 +85,8 @@
         .list-item { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
         .badge { background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-right: 0.3rem; }
 
+        .flex-col-min { flex: 1; min-width: 300px; }
+
         .mobile-topbar { display: none; }
         .sidebar-overlay { display: none; }
         .mobile-close-btn { display: none; }
@@ -117,6 +119,8 @@
             .mobile-close-btn { display: block; align-self: flex-end; margin-bottom: 1.5rem; background: transparent; border: 1px solid var(--glass-border); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; }
             
             .main-content { padding: 1rem; }
+            
+            .flex-col-min { min-width: 100%; }
         }
     </style>
 </head>
@@ -339,7 +343,7 @@
                     <!-- COMP JUDGES & POSTS -->
                     <div id="comp-judges-section" style="display: none;">
                         <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                            <div style="flex: 1; min-width: 300px;">
+                    <div class="flex-col-min">
                                 <form id="add-comp-judge-form" style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--glass-border);">
                                     <h4 style="margin-bottom: 1rem;">Tilknyt Dommer</h4>
                                     <div class="input-group">
@@ -376,7 +380,7 @@
                 
                 <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
                     <!-- RYTTERE -->
-                    <div style="flex: 1; min-width: 300px;">
+                    <div class="flex-col-min">
                         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 1rem;">
                             <h4 style="color: var(--primary);"><i class="fas fa-horse"></i> Ryttere & Heste</h4>
                             <button class="btn btn-primary btn-sm" onclick="openDirRiderModal()"><i class="fas fa-plus"></i> Opret Ny</button>
@@ -385,7 +389,7 @@
                     </div>
                     
                     <!-- DOMMERE -->
-                    <div style="flex: 1; min-width: 300px;">
+                    <div class="flex-col-min">
                         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 1rem;">
                             <h4 style="color: #10b981;"><i class="fas fa-gavel"></i> Dommere</h4>
                             <button class="btn btn-primary btn-sm" style="background: #10b981;" onclick="openDirJudgeModal()"><i class="fas fa-plus"></i> Opret Ny</button>
@@ -403,7 +407,7 @@
                 <p style="color: var(--text-secondary); margin-bottom: 2rem;">Opret klubbens faste poster (f.eks. "Tølt T1", "Pasløb"). Disse kan genbruges ved alle stævner.</p>
                 
                 <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 300px;">
+                    <div class="flex-col-min">
                         <form id="club-post-form" style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--glass-border);">
                             <h4 style="margin-bottom: 1rem;">Opret Ny Post / Klasse</h4>
                             <div class="input-group">
@@ -421,7 +425,7 @@
                             <button type="submit" class="btn btn-primary">Opret Post</button>
                         </form>
                     </div>
-                    <div style="flex: 1; min-width: 300px;">
+                    <div class="flex-col-min">
                         <div id="club-posts-list" style="display: flex; flex-direction: column; gap: 1rem;"></div>
                     </div>
                 </div>
