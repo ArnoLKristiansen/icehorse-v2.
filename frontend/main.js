@@ -19,6 +19,16 @@ window.closeSidebar = function() {
     }
 };
 
+window.copyPublicLink = function() {
+    if (!window.currentCompId) return;
+    const url = `${window.location.origin}/?leaderboard=${window.currentCompId}`;
+    navigator.clipboard.writeText(url).then(() => {
+        alert('Offentligt link er kopieret!\nDu kan nu indsætte det på Facebook, hjemmesider eller i en mail.');
+    }).catch(err => {
+        prompt('Kopiér dette link manuelt:', url);
+    });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Undgå at main.js blander sig, hvis vi er på en dommer- eller leaderboard-side
     const urlParams = new URLSearchParams(window.location.search);
